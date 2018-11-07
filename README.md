@@ -1,6 +1,6 @@
 # Kite-Zerodha Selenium automation
 
-> Have you computer manage your protfolio when you work/sleep
+> Have your computer manage your protfolio when you work/sleep
 
 > Kite Zerodha order automation with Entry/Target/StopLoss price by giving in a simple portfolio
 
@@ -16,10 +16,10 @@
    "password":"thisIsMyPassword",
    "security": {
       "Who is your spouse's email service provider? (e.g. gmail, rediffmail, etc)" : "yourAnswer",
-      "What is your mother's name?":"yourAnswer",
-      "What was the brand of your first mobile?":"yourAnswer",
-      "What is the name of your first child?":"yourAnswer",
-      "In Which bank did you first open your account? ( e.g. HDFC ,SBI, etc.)":"yourAnswer"
+      "question2":"yourAnswer",
+      "question3":"yourAnswer",
+      "question4":"yourAnswer",
+      "question5":"yourAnswer"
    }
 }
 ```
