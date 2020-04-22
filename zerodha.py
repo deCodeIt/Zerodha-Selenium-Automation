@@ -5,6 +5,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
+from webdriver_manager.chrome import ChromeDriverManager
 import json
 import pdb
 
@@ -12,8 +13,11 @@ class ZerodhaSelenium( object ):
 
    def __init__( self ):
       self.timeout = 5
+      self.username = None
+      self.password = None
+      self.pin = None
       self.loadCredentials()
-      self.driver = webdriver.Chrome()
+      self.driver = webdriver.Chrome(ChromeDriverManager().install())
 
    def getCssElement( self, cssSelector ):
       '''
@@ -26,7 +30,7 @@ class ZerodhaSelenium( object ):
          data = json.load( credsFile )
          self.username = data[ 'username' ]
          self.password = data[ 'password' ]
-         self.security = data[ 'security' ] # for 2FA
+         self.pin = data[ 'pin' ]
 
    def doLogin( self ):
       #let's login
@@ -36,19 +40,16 @@ class ZerodhaSelenium( object ):
          passwordField.send_keys( self.password )
          userNameField = self.getCssElement( "input[placeholder='User ID']" )
          userNameField.send_keys( self.username )
+         
          loginButton = self.getCssElement( "button[type=submit]" )
          loginButton.click()
          
          # 2FA
          form2FA = self.getCssElement( "form.twofa-form" )
-         fieldQuestion1 = form2FA.find_element_by_css_selector( "div:nth-child(2) > div > label.su-input-label")
-         fieldQuestion2 = form2FA.find_element_by_css_selector( "div:nth-child(3) > div > label.su-input-label")
-         fieldAnswer1 = form2FA.find_element_by_css_selector( "div:nth-child(2) > div > input[type=password]" )
-         fieldAnswer2 = form2FA.find_element_by_css_selector( "div:nth-child(3) > div > input[type=password]" )
+         pinField = self.getCssElement( "input[label='PIN']" )
+         pinField.send_keys( self.pin )
+         
          buttonSubmit = self.getCssElement( "button[type=submit]" )
-
-         fieldAnswer1.send_keys( self.security.get( fieldQuestion1.text, "NA" ) )
-         fieldAnswer2.send_keys( self.security.get( fieldQuestion2.text, "NA" ) )
          buttonSubmit.click()
 
       except TimeoutException:
