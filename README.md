@@ -14,13 +14,7 @@
 {
    "username":"ABC123",
    "password":"thisIsMyPassword",
-   "security": {
-      "Who is your spouse's email service provider? (e.g. gmail, rediffmail, etc)" : "yourAnswer",
-      "question2":"yourAnswer",
-      "question3":"yourAnswer",
-      "question4":"yourAnswer",
-      "question5":"yourAnswer"
-   }
+   "pin":"12345"
 }
 ```
 
