@@ -64,10 +64,12 @@ class ZerodhaSelenium( object ):
       except TimeoutException:
          print( "Timeout occurred" )
 
-      pdb.set_trace()
-      # close chrome
+      # pdb.set_trace()
+      
+   def close( self ):
       self.driver.quit()
 
 if __name__ == "__main__":
    obj = ZerodhaSelenium()
    obj.doLogin()
+   # obj.close()
