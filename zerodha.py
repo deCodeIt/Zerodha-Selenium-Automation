@@ -8,6 +8,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.remote.webelement import WebElement
+from selenium.webdriver.common.keys import Keys
+from typing import List
 import pandas as pd
 from os import listdir
 from time import sleep
@@ -36,6 +38,12 @@ class ZerodhaSelenium( object ):
       To make sure we wait till the element appears
       '''
       return WebDriverWait( self.driver, self.timeout if timeout is None else timeout ).until( EC.presence_of_element_located( ( By.CSS_SELECTOR, cssSelector ) ) )
+   
+   def getCssElements( self, cssSelector: str, timeout: int = None ) -> List[WebElement]:
+      '''
+      To make sure we wait till the element appears
+      '''
+      return WebDriverWait( self.driver, self.timeout if timeout is None else timeout ).until( EC.presence_of_all_elements_located( ( By.CSS_SELECTOR, cssSelector ) ) )
    
    def waitForCssElement( self, cssSelector: str, timeout: int = None ):
       '''
@@ -150,12 +158,28 @@ class ZerodhaSelenium( object ):
          quantity = quantities[i]
 
          # Do something with the data (e.g., print or perform calculations)
-         print(f"Stock Name: {stockName}")
-         print(f"Entry Price: {entryPrice}")
-         print(f"Target Price: {targetPrice}")
-         print(f"Stop Loss: {stopLoss}")
-         print(f"Quantity: {quantity}")
-         print()
+         print(f"Stock Name: {stockName}, {entryPrice}, {targetPrice}, {stopLoss}, {quantity}")
+         
+         self.addStock( stockName )
+         
+   def addStock( self, stockCode: str ):
+      nicknameElem = self.getCssElement( "span.nickname" )
+      searchElem = self.getCssElement( "input[placeholder^='Search eg']" )
+      searchElem.send_keys( stockCode )
+      
+      searchResults = self.getCssElements( "ul.omnisearch-results li" )
+      for stock in searchResults:
+         if stock.find_element_by_css_selector( "span.tradingsymbol" ).text.strip() == stockCode and stock.find_element_by_css_selector( "span.exchange-tag" ).text.strip() == "NSE":
+            self.hoverOverElement( stock )
+            stock.find_element_by_css_selector( "span.action-buttons button[data-balloon='Add']").click()
+            print( f"Stock {stockCode} added")
+            # searchElem.send_keys( Keys.BACKSPACE * len( stockCode ) )
+            nicknameElem.click()
+            return
+
+      # searchElem.send_keys( Keys.BACKSPACE * len( stockCode ) )
+      nicknameElem.click()
+      print( f"Stock {stockCode} wasn't found")
       
    def close( self ):
       self.driver.quit()
