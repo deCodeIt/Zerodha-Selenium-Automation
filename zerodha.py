@@ -6,7 +6,10 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.remote.webelement import WebElement
+from os import listdir
 import json
+import pickle
 import pdb
 
 class ZerodhaSelenium( object ):
@@ -18,7 +21,7 @@ class ZerodhaSelenium( object ):
       self.loadCredentials()
       self.driver = webdriver.Chrome(ChromeDriverManager().install())
 
-   def getCssElement( self, cssSelector: str, timeout: int = None ):
+   def getCssElement( self, cssSelector: str, timeout: int = None ) -> WebElement:
       '''
       To make sure we wait till the element appears
       '''
@@ -35,13 +38,38 @@ class ZerodhaSelenium( object ):
       Wait till the element appears
       '''
       WebDriverWait( self.driver, self.timeout if timeout is None else timeout ).until( EC.url_contains( url ) )
+      
+   def saveSession( self ):
+      with open( 'cookies.pkl', 'wb' ) as file:
+         pickle.dump( self.driver.get_cookies(), file )
+         
+   def maybeRestoreSession( self ):
+      if not 'cookies.pkl' in listdir():
+         return
+
+      self.driver.get( 'https://kite.zerodha.com/404' )
+      
+      with open('cookies.pkl', 'rb') as file:
+         cookies = pickle.load( file )
+
+      for cookie in cookies:
+         self.driver.add_cookie( cookie )
+         
+      self.driver.get( 'https://kite.zerodha.com/' )
 
    def loadCredentials( self ):
       '''Load saved login credentials from credentials.json file'''
-      with open( "credentials.json") as credsFile:
+      with open( 'credentials.json' ) as credsFile:
          data = json.load( credsFile )
          self.username = data[ 'username' ]
          self.password = data[ 'password' ]
+         
+   def isLoggedIn( self ):
+      try:
+         self.getCssElement( "span.user-id" )
+         return True
+      except TimeoutException:
+         return False
 
    def doLogin( self ):
       #let's login
@@ -60,6 +88,8 @@ class ZerodhaSelenium( object ):
          # Wait for user to enter TOTP manually
          
          self.waitForUrl( "kite.zerodha.com/dashboard", 300 )
+         
+         self.saveSession()
 
       except TimeoutException:
          print( "Timeout occurred" )
@@ -71,5 +101,7 @@ class ZerodhaSelenium( object ):
 
 if __name__ == "__main__":
    obj = ZerodhaSelenium()
-   obj.doLogin()
+   obj.maybeRestoreSession()
+   if not obj.isLoggedIn():
+      obj.doLogin()
    # obj.close()
