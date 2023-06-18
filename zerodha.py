@@ -18,7 +18,7 @@ class ZerodhaSelenium( object ):
       self.loadCredentials()
       self.driver = webdriver.Chrome(ChromeDriverManager().install())
 
-   def getCssElement( self, cssSelector: str, timeout: int ):
+   def getCssElement( self, cssSelector: str, timeout: int = None ):
       '''
       To make sure we wait till the element appears
       '''
@@ -30,7 +30,7 @@ class ZerodhaSelenium( object ):
       '''
       WebDriverWait( self.driver, self.timeout if timeout is None else timeout ).until( EC.presence_of_element_located( ( By.CSS_SELECTOR, cssSelector ) ) )
       
-   def waitForUrl( self, url: str, timeout: int ):
+   def waitForUrl( self, url: str, timeout: int = None ):
       '''
       Wait till the element appears
       '''
