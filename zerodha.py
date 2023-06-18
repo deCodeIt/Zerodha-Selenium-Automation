@@ -6,8 +6,10 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.remote.webelement import WebElement
 from os import listdir
+from time import sleep
 import json
 import pickle
 import pdb
@@ -19,7 +21,12 @@ class ZerodhaSelenium( object ):
       self.username : str = None
       self.password: str = None
       self.loadCredentials()
-      self.driver = webdriver.Chrome(ChromeDriverManager().install())
+      self.driver = webdriver.Chrome(ChromeDriverManager().install(), options=self.getChromeOptions())
+      
+   def getChromeOptions( self ):
+      chromeOptions = webdriver.ChromeOptions()
+      chromeOptions.add_argument( '--disable-notifications' )
+      return chromeOptions
 
    def getCssElement( self, cssSelector: str, timeout: int = None ) -> WebElement:
       '''
@@ -38,6 +45,17 @@ class ZerodhaSelenium( object ):
       Wait till the element appears
       '''
       WebDriverWait( self.driver, self.timeout if timeout is None else timeout ).until( EC.url_contains( url ) )
+      
+   def hoverOverCssElement( self, cssSelector: str, timeout: int = None ):
+      action = ActionChains( self.driver )
+      elem = self.getCssElement( cssSelector, timeout )
+      action.move_to_element( elem )
+      action.perform()
+      
+   def hoverOverElement( self, elem: WebElement ):
+      action = ActionChains( self.driver )
+      action.move_to_element( elem )
+      action.perform()
       
    def saveSession( self ):
       with open( 'cookies.pkl', 'wb' ) as file:
@@ -95,6 +113,20 @@ class ZerodhaSelenium( object ):
          print( "Timeout occurred" )
 
       # pdb.set_trace()
+   
+   def openMarketwatch( self ):
+      '''Opens up marketwatch 7 which should ideally be reserved for this script'''
+      mws = self.driver.find_elements_by_css_selector( "ul.marketwatch-selector li" )
+      mws[ -2 ].click()
+      
+   def clearMarketwatch( self ):
+      try:
+         while True:
+            self.hoverOverCssElement( "div.instruments div.instrument" )
+            deleteElem = self.getCssElement( "div.instruments div.instrument span[data-balloon^='Delete']" )
+            deleteElem.click()
+      except TimeoutException:
+         print( "Cleared" )
       
    def close( self ):
       self.driver.quit()
@@ -104,4 +136,6 @@ if __name__ == "__main__":
    obj.maybeRestoreSession()
    if not obj.isLoggedIn():
       obj.doLogin()
+   obj.openMarketwatch()
+   obj.clearMarketwatch()
    # obj.close()
