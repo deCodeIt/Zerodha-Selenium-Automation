@@ -18,23 +18,23 @@ class ZerodhaSelenium( object ):
       self.loadCredentials()
       self.driver = webdriver.Chrome(ChromeDriverManager().install())
 
-   def getCssElement( self, cssSelector: str ):
+   def getCssElement( self, cssSelector: str, timeout: int ):
       '''
       To make sure we wait till the element appears
       '''
-      return WebDriverWait( self.driver, self.timeout ).until( EC.presence_of_element_located( ( By.CSS_SELECTOR, cssSelector ) ) )
+      return WebDriverWait( self.driver, self.timeout if timeout is None else timeout ).until( EC.presence_of_element_located( ( By.CSS_SELECTOR, cssSelector ) ) )
    
-   def waitForCssElement( self, cssSelector: str ):
+   def waitForCssElement( self, cssSelector: str, timeout: int = None ):
       '''
       Wait till the element appears
       '''
-      WebDriverWait( self.driver, self.timeout ).until( EC.presence_of_element_located( ( By.CSS_SELECTOR, cssSelector ) ) )
+      WebDriverWait( self.driver, self.timeout if timeout is None else timeout ).until( EC.presence_of_element_located( ( By.CSS_SELECTOR, cssSelector ) ) )
       
-   def waitForUrl( self, url: str ):
+   def waitForUrl( self, url: str, timeout: int ):
       '''
       Wait till the element appears
       '''
-      WebDriverWait( self.driver, self.timeout ).until( EC.url_contains( url ) )
+      WebDriverWait( self.driver, self.timeout if timeout is None else timeout ).until( EC.url_contains( url ) )
 
    def loadCredentials( self ):
       '''Load saved login credentials from credentials.json file'''
@@ -47,9 +47,9 @@ class ZerodhaSelenium( object ):
       #let's login
       self.driver.get( "https://kite.zerodha.com/")
       try:
-         passwordField = self.getCssElement( "input[placeholder=Password]" )
+         passwordField = self.getCssElement( "input#password" )
          passwordField.send_keys( self.password )
-         userNameField = self.getCssElement( "input[placeholder='User ID']" )
+         userNameField = self.getCssElement( "input#userid" )
          userNameField.send_keys( self.username )
          
          loginButton = self.getCssElement( "button[type=submit]" )
@@ -57,13 +57,9 @@ class ZerodhaSelenium( object ):
          
          # 2FA
          self.waitForCssElement( "form.twofa-form" )
-         pinField = self.getCssElement( "input[label='External TOTP']" )
-         pinField.send_keys( self.pin )
+         # Wait for user to enter TOTP manually
          
-         buttonSubmit = self.getCssElement( "button[type=submit]" )
-         buttonSubmit.click()
-         
-         self.waitForUrl( "kite.zerodha.com/dashboard" )
+         self.waitForUrl( "kite.zerodha.com/dashboard", 300 )
 
       except TimeoutException:
          print( "Timeout occurred" )
