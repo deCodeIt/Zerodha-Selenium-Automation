@@ -166,7 +166,8 @@ class ZerodhaSelenium( object ):
       nicknameElem = self.getCssElement( "span.nickname" )
       searchElem = self.getCssElement( "input[placeholder^='Search eg']" )
       searchElem.send_keys( stockCode )
-      
+      # TODO: replace with proper awaiting of search results
+      sleep( 1 )
       searchResults = self.getCssElements( "ul.omnisearch-results li" )
       for stock in searchResults:
          if stock.find_element_by_css_selector( "span.tradingsymbol" ).text.strip() == stockCode and stock.find_element_by_css_selector( "span.exchange-tag" ).text.strip() == "NSE":
