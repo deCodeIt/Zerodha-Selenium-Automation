@@ -14,10 +14,12 @@
 
 ```json
 {
-   "username":"ABC123",
-   "password":"thisIsMyPassword"
+   "username": "ABC123",
+   "password": "thisIsMyPassword"
 }
 ```
+  
+> Use sample `portfolio.sample.xlsx` and create `portfolio.xlsx` as per your wish.  
 
 ---
 
