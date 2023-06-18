@@ -1,8 +1,10 @@
-# Kite-Zerodha Selenium automation
+# Kite-Zerodha Selenium automation ( WIP )
 
-> Have your computer manage your protfolio when you work/sleep
+> Have your computer manage your protfolio when you work/sleep  
 
-> Kite Zerodha order automation with Entry/Target/StopLoss price by giving in a simple portfolio
+> Kite Zerodha order automation with Entry/Target/StopLoss price by giving in a simple portfolio  
+
+> Ensure that Marketwatch 7 has space left for the stocks in your portfolio
 
 ---
 
