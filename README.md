@@ -13,8 +13,7 @@
 ```json
 {
    "username":"ABC123",
-   "password":"thisIsMyPassword",
-   "pin":"12345"
+   "password":"thisIsMyPassword"
 }
 ```
 

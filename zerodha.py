@@ -13,24 +13,35 @@ class ZerodhaSelenium( object ):
 
    def __init__( self ):
       self.timeout = 5
-      self.username = None
-      self.password = None
-      self.pin = None
+      self.username : str = None
+      self.password: str = None
       self.loadCredentials()
       self.driver = webdriver.Chrome(ChromeDriverManager().install())
 
-   def getCssElement( self, cssSelector ):
+   def getCssElement( self, cssSelector: str ):
       '''
       To make sure we wait till the element appears
       '''
       return WebDriverWait( self.driver, self.timeout ).until( EC.presence_of_element_located( ( By.CSS_SELECTOR, cssSelector ) ) )
+   
+   def waitForCssElement( self, cssSelector: str ):
+      '''
+      Wait till the element appears
+      '''
+      WebDriverWait( self.driver, self.timeout ).until( EC.presence_of_element_located( ( By.CSS_SELECTOR, cssSelector ) ) )
+      
+   def waitForUrl( self, url: str ):
+      '''
+      Wait till the element appears
+      '''
+      WebDriverWait( self.driver, self.timeout ).until( EC.url_contains( url ) )
 
    def loadCredentials( self ):
+      '''Load saved login credentials from credentials.json file'''
       with open( "credentials.json") as credsFile:
          data = json.load( credsFile )
          self.username = data[ 'username' ]
          self.password = data[ 'password' ]
-         self.pin = data[ 'pin' ]
 
    def doLogin( self ):
       #let's login
@@ -45,12 +56,14 @@ class ZerodhaSelenium( object ):
          loginButton.click()
          
          # 2FA
-         form2FA = self.getCssElement( "form.twofa-form" )
-         pinField = self.getCssElement( "input[label='PIN']" )
+         self.waitForCssElement( "form.twofa-form" )
+         pinField = self.getCssElement( "input[label='External TOTP']" )
          pinField.send_keys( self.pin )
          
          buttonSubmit = self.getCssElement( "button[type=submit]" )
          buttonSubmit.click()
+         
+         self.waitForUrl( "kite.zerodha.com/dashboard" )
 
       except TimeoutException:
          print( "Timeout occurred" )
