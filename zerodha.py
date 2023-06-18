@@ -8,6 +8,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.remote.webelement import WebElement
+import pandas as pd
 from os import listdir
 from time import sleep
 import json
@@ -21,6 +22,8 @@ class ZerodhaSelenium( object ):
       self.username : str = None
       self.password: str = None
       self.loadCredentials()
+   
+   def setup( self ):
       self.driver = webdriver.Chrome(ChromeDriverManager().install(), options=self.getChromeOptions())
       
    def getChromeOptions( self ):
@@ -122,20 +125,48 @@ class ZerodhaSelenium( object ):
    def clearMarketwatch( self ):
       try:
          while True:
-            self.hoverOverCssElement( "div.instruments div.instrument" )
+            self.hoverOverCssElement( "div.instruments div.instrument", 1 )
             deleteElem = self.getCssElement( "div.instruments div.instrument span[data-balloon^='Delete']" )
             deleteElem.click()
       except TimeoutException:
          print( "Cleared" )
+         
+   def pasrseExcel( self ):
+      # Read the Excel file
+      portfolio = pd.read_excel( 'portfolio.xlsx' )  # Replace 'file_path.xlsx' with the actual file path
+
+      # Access the columns
+      stockNames = portfolio['StockName']
+      entryPrices = portfolio['EntryPrice']
+      targetPrices = portfolio['TargetPrice']
+      stopLosses = portfolio['StopLoss']
+      quantities = portfolio['Quantity']
+      
+      for i in range( len( portfolio ) ):
+         stockName = stockNames[i]
+         entryPrice = entryPrices[i]
+         targetPrice = targetPrices[i]
+         stopLoss = stopLosses[i]
+         quantity = quantities[i]
+
+         # Do something with the data (e.g., print or perform calculations)
+         print(f"Stock Name: {stockName}")
+         print(f"Entry Price: {entryPrice}")
+         print(f"Target Price: {targetPrice}")
+         print(f"Stop Loss: {stopLoss}")
+         print(f"Quantity: {quantity}")
+         print()
       
    def close( self ):
       self.driver.quit()
 
 if __name__ == "__main__":
    obj = ZerodhaSelenium()
+   obj.setup()
    obj.maybeRestoreSession()
    if not obj.isLoggedIn():
       obj.doLogin()
    obj.openMarketwatch()
    obj.clearMarketwatch()
+   obj.pasrseExcel()
    # obj.close()
