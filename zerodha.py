@@ -182,6 +182,20 @@ class ZerodhaSelenium( object ):
       nicknameElem.click()
       print( f"Stock {stockCode} wasn't found")
       
+   def loadPositions( self ):
+      self.driver.get( "https://kite.zerodha.com/positions" )
+      
+      positions = self.getCssElements( "div.positions > section.open-positions table tbody tr:not([class='show-all-row'])" )
+      if not positions:
+         return
+      
+      for position in positions:
+         product = position.find_element_by_css_selector( "td.product" ).text.strip()
+         stockCode = position.find_element_by_css_selector( "td.instrument span.tradingsymbol" ).text.strip()
+         exchange = position.find_element_by_css_selector( "td.instrument span.exchange" ).text.strip()
+         qty = int( position.find_element_by_css_selector( "td.quantity" ).text.strip() )
+         print( f"Position: {stockCode} {exchange} {qty} {product}" )
+
    def close( self ):
       self.driver.quit()
 
@@ -194,4 +208,5 @@ if __name__ == "__main__":
    obj.openMarketwatch()
    obj.clearMarketwatch()
    obj.pasrseExcel()
+   obj.loadPositions()
    # obj.close()
